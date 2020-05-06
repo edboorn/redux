@@ -1,24 +1,19 @@
 // Reducers specify how the application's state changes in response to actions sent to the store. Remember that actions only describe what happened, but don't describe how the application's state changes.
 
 // Redux stores all application state in a single object
-
+import { combineReducers } from "redux";
 import {
   ADD_TODO,
   TOGGLE_TODO,
   SET_VISIBILITY_FILTER,
   VisibilityFilters,
 } from "./actions";
-const {SHOW_ALL} = VisibilityFilters
+const { SHOW_ALL } = VisibilityFilters;
 
-
-// Old way of writing this function
-// function todoApp (state, action) {
-//     if(typeof state === 'undefined') {
-//         return initialState
-//     }
-//     // For now, don't hanle any actions and just return the state given to us
-//     return state
-// }
+// const initialState = {
+//     visibilityFilter: VisibilityFilters.SHOW_ALL,
+//     todos: []
+//   }
 
 function todos(state = [], action) {
   switch (action.type) {
@@ -31,30 +26,28 @@ function todos(state = [], action) {
         },
       ];
     case TOGGLE_TODO:
-      return state.map((todo, index) => {
-        if (index === action.index) {
-          return Object.assign({}, todo, {
-            completed: !todo.completed,
-          });
-        }
-      });
+      return state.map(todo =>
+        todo.id === action.id ? { ...todo, completed: !todo.completed } : todo
+      )
     default:
       return state;
   }
 }
 
-function VisibilityFilter(state = SHOW_ALL,action) {
-    switch(action.type){
-        case SET_VISIBILITY_FILTER:
-            return action.filter
-        default:
-            return state
-    }
+function visibilityFilter(state = SHOW_ALL, action) {
+  switch (action.type) {
+    case SET_VISIBILITY_FILTER:
+      return action.filter;
+    default:
+      return state;
+  }
 }
-// New way of writing this function
-function todoApp(state = {}, action) {
-    return {
-        VisibilityFilter : VisibilityFilter(state.VisibilityFilter,action),
-        todos: todos(state.todos,action)
-    }
-}
+
+// Each part of the state has its own reducer controlling it
+// You could seperate each reducer into its own file to keep the independant
+const todoApp = combineReducers({
+  visibilityFilter,
+  todos,
+});
+
+export default todoApp;
