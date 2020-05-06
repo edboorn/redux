@@ -8,11 +8,8 @@ import {
   SET_VISIBILITY_FILTER,
   VisibilityFilters,
 } from "./actions";
+const {SHOW_ALL} = VisibilityFilters
 
-const initialState = {
-  VisibilityFilter: VisibilityFilters.SHOW_ALL,
-  todos: [],
-};
 
 // Old way of writing this function
 // function todoApp (state, action) {
@@ -23,36 +20,41 @@ const initialState = {
 //     return state
 // }
 
-// New way of writing this function
-function todoApp(state = initialState, action) {
+function todos(state = [], action) {
   switch (action.type) {
-    case SET_VISIBILITY_FILTER:
-      // Use Object.assign to copy state rather than mutating the initial state
-      return Object.assign({}, state, {
-        VisibilityFilter: action.filter,
-      });
     case ADD_TODO:
-      return Object.assign({}, state, {
-        todos: [
-          ...state.todos,
-          {
-            text: action.text,
-            completed: false,
-          },
-        ],
-      });
+      return [
+        ...state,
+        {
+          text: action.text,
+          completed: false,
+        },
+      ];
     case TOGGLE_TODO:
-      return Object.assign({}, state, {
-        todos: state.todos.map((todo, index) => {
-          if (index === action.index) {
-            return Object.assign({}, todo, {
-              completed: !todo.completed,
-            });
-          }
-          return todo;
-        }),
+      return state.map((todo, index) => {
+        if (index === action.index) {
+          return Object.assign({}, todo, {
+            completed: !todo.completed,
+          });
+        }
       });
     default:
       return state;
   }
+}
+
+function VisibilityFilter(state = SHOW_ALL,action) {
+    switch(action.type){
+        case SET_VISIBILITY_FILTER:
+            return action.filter
+        default:
+            return state
+    }
+}
+// New way of writing this function
+function todoApp(state = {}, action) {
+    return {
+        VisibilityFilter : VisibilityFilter(state.VisibilityFilter,action),
+        todos: todos(state.todos,action)
+    }
 }
